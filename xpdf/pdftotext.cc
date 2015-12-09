@@ -43,6 +43,7 @@ static GBool rawOrder = gFalse;
 static double fixedPitch = 0;
 static double fixedLineSpacing = 0;
 static GBool clipText = gFalse;
+static GBool onlyImportant = gFalse;
 static char textEncName[128] = "";
 static char textEOL[16] = "";
 static GBool noPageBreaks = gFalse;
@@ -72,6 +73,8 @@ static ArgDesc argDesc[] = {
    "fixed line spacing for LinePrinter mode"},
   {"-clip",    argFlag,     &clipText,      0,
    "separate clipped text"},
+  {"-important",    argFlag,     &onlyImportant,      0,
+          "only print underlined text"},
   {"-enc",     argString,   textEncName,    sizeof(textEncName),
    "output text encoding name"},
   {"-eol",     argString,   textEOL,        sizeof(textEOL),
@@ -235,6 +238,7 @@ int main(int argc, char *argv[]) {
     textOutControl.mode = textOutReadingOrder;
   }
   textOutControl.clipText = clipText;
+  textOutControl.onlyImportant = onlyImportant;
   textOut = new TextOutputDev(textFileName->getCString(), &textOutControl,
 			      gFalse);
   if (textOut->isOk()) {

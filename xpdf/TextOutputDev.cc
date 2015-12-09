@@ -1403,7 +1403,7 @@ GList *TextPage::makeColumns() {
   }
   columns = buildColumns(tree);
   delete tree;
-  if (control.html) {
+  if (control.html) { //DARK
     generateUnderlinesAndLinks(columns);
   }
   return columns;
@@ -1442,7 +1442,7 @@ void TextPage::writePhysLayout(void *outputStream,
   columns = buildColumns(tree);
   delete tree;
   unrotateChars(chars, rot);
-  if (control.html) {
+  if (control.html || control.onlyImportant) {
     rotateUnderlinesAndLinks(rot);
     generateUnderlinesAndLinks(columns);
   }
@@ -1477,7 +1477,23 @@ void TextPage::writePhysLayout(void *outputStream,
 	  out[y]->append(space, spaceLen);
 	  ++outLen[y];
 	}
-	encodeFragment(line->text, line->len, uMap, primaryLR, out[y]);
+
+    if (control.onlyImportant)
+    {
+        //Outputs only the real important stuff...
+        int wordId;
+        for (wordId = 0; wordId < line->words->getLength(); ++wordId) {
+            TextWord word = (TextWord *) line->words->get(wordId);
+            if (word.underlined)
+            {
+                encodeFragment(word.text, word.len, uMap, primaryLR, out[y]);
+                out[y]->append(space, 1);
+            }
+        }
+    }else
+    {
+        encodeFragment(line->text, line->len, uMap, primaryLR, out[y]);
+    }
 	outLen[y] += line->pw;
 	++y;
       }
@@ -4284,7 +4300,7 @@ void TextOutputDev::stroke(GfxState *state) {
   GfxSubpath *subpath;
   double x[2], y[2];
 
-  if (!control.html) {
+  if (!control.html && !control.onlyImportant) {
     return;
   }
   path = state->getPath();
